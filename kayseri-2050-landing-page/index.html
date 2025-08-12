@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kayseri Gelecek Treni ve Hakkında</title>
+
+  <!-- Optional: Bootstrap (kullanmak istemezsen linki kaldırabilirsin) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* -------------------------------------------
+       Genel
+       ------------------------------------------- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #000;
+      color: #fff;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* -------------------------------------------
+       Arka plan (tam ekran, değişen görseller)
+       ------------------------------------------- */
+    #background {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+    #background img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    #background img.active { opacity: 1; }
+
+    /* Yıl göstergesi */
+    #year {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      font-size: 3rem;
+      font-weight: 700;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.6);
+      color: #fff;
+    }
+
+    /* -------------------------------------------
+       İçerik kapsayıcı
+       ------------------------------------------- */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* -------------------------------------------
+       About Us bölümü (açık arka plan)
+       ------------------------------------------- */
+    .about-us {
+      background: rgba(255,255,255,0.98);
+      color: #111;
+      padding: 40px 20px;
+      margin-top: 100vh; /* arka plan ekranının altına itmek için */
+      border-radius: 12px;
+    }
+    .circular-image {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .circular-image img { width: 100%; height: 100%; object-fit: cover; display:block; }
+
+    /* Kartlar satırı (bootstrap kart kullandım) */
+    .card-img-top { object-fit: cover; height: 180px; }
+
+    /* -------------------------------------------
+       Dönüşümlü içerik bölümleri (flex)
+       ------------------------------------------- */
+    .content-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 40px 0;
+      color: #111;
+    }
+    .content-section img {
+      width: 100%;
+      max-width: 420px;
+      height: auto;
+      border-radius: 10px;
+      display:block;
+    }
+    .content-text { max-width: 640px; }
+
+    /* İkinci bölümün HTML sırasını değiştirmeden terslenmesi */
+    .reverse { flex-direction: row-reverse; }
+
+    /* -------------------------------------------
+       Team (tek çekirdek profil)
+       ------------------------------------------- */
+    .team-section {
+      text-align: center;
+      padding: 60px 20px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.6), rgba(0,0,0,0.8));
+      color: #fff;
+      margin-top: 20px;
+      border-radius: 12px;
+    }
+    .team-section h2 { font-size: 2.2rem; margin-bottom: 6px; }
+    .team-section h3 { font-size: 1.05rem; margin-bottom: 28px; color: #cfcfcf; font-weight: 400; }
+
+    .profile-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .profile-item {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid rgba(255,255,255,0.15);
+      background: #222;
+      transition: transform .25s ease, box-shadow .25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .profile-item img { width: 100%; height: 100%; object-fit: cover; display:block; }
+
+    .profile-item:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 4px 12px rgba(255,255,255,0.06) inset;
+    }
+
+    /* -------------------------------------------
+       Responsive
+       ------------------------------------------- */
+    @media (max-width: 992px) {
+      .content-section { gap: 16px; }
+      .content-section img { max-width: 320px; }
+      .circular-image { width: 160px; height: 160px; }
+    }
+    @media (max-width: 768px) {
+      .content-section, .reverse { flex-direction: column; text-align: center; }
+      .content-section img { max-width: 100%; }
+      .about-us { margin-top: 40vh; padding: 28px 16px; }
+      .card-img-top { height: 160px; }
+      .profile-item { width: 140px; height: 140px; }
+    }
+    @media (max-width: 480px) {
+      #year { font-size: 2rem; top: 14px; }
+      .profile-item { width: 120px; height: 120px; }
+      .team-section { padding: 36px 12px; }
+    }
+
+    /* küçük estetik ayarlar */
+    .spacer { height: 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- Arka plan - değişen görseller -->
+  <div id="background" aria-hidden="true">
+    <img src="https://cdn-gaecj.nitrocdn.com/JMwuRIbFKRytZpZBQQGkRvqmTfGyKhHA/assets/images/optimized/rev-3abe5c9/turkeytravelplanner.com/wp-content/uploads/2023/08/kayseri-square.jpg" class="active" alt="Kayseri 1">
+    <img src="https://mediaim.expedia.com/destination/1/89db3ef5edce6577db2504603c8a383d.jpg" alt="Kayseri 2">
+    <img src="https://visitturkey.in/wp-content/uploads/2024/07/kayseri-turkey.webp" alt="Kayseri 3">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Erciyes_Da%C4%9F%C4%B1%2C_Kayseri.jpg" alt="Kayseri 4">
+  </div>
+
+  <!-- Yıl metni -->
+  <div id="year" aria-hidden="true">2025</div>
+
+  <!-- JS: arka plan döngüsü -->
+  <script>
+    (function(){
+      const bgImgs = document.querySelectorAll('#background img');
+      const years = [2025, 2035, 2045, 2050];
+      let idx = 0;
+      const yearEl = document.getElementById('year');
+
+      function updateScene(){
+        bgImgs.forEach((img,i) => img.classList.toggle('active', i === idx % bgImgs.length));
+        if (yearEl) yearEl.textContent = years[idx % years.length];
+        idx++;
+      }
+      // İlk güncelleme hafif gecikme ile
+      setTimeout(updateScene, 200);
+      setInterval(updateScene, 5000);
+    })();
+  </script>
+
+  <!-- Ana içerik -->
+  <div class="container">
+
+    <!-- About Us -->
+    <section class="about-us" aria-labelledby="about-title">
+      <div class="row align-items-center">
+        <div class="col-md-4 d-flex justify-content-center mb-4 mb-md-0">
+          <div class="circular-image" role="img" aria-label="Erciyes Dağı fotoğrafı">
+            <img src="https://i.kayseriolay.com/c/60/1682x1121/s/dosya/haber/galeriler/1220x686/erciyes-dagi-1_1726506201_0N6re8.jpg" alt="Erciyes Dağı">
+          </div>
+        </div>
+        <div class="col-md-8">
+          <h2 id="about-title">Kayseri Hakkında</h2>
+          <p>Kayseri, tarihi İpek Yolu üzerinde yer alan; zengin kültürel mirası, dinamizmi ve güçlü sanayisi ile tanınan bir şehirdir. 
+            Bölgedeki Kültepe (Kaniş) höyüğü, Anadolu tarihinde büyük öneme sahiptir ve Kayseri civarı binlerce yıllık bir yerleşim geçmişine sahiptir.</p>
+        </div>
+      </div>
+
+      <!-- 3 Kart -->
+      <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="https://sdmntprukwest.oaiusercontent.com/files/00000000-b3e8-6243-95cc-0001f4ae6a17/raw?se=2025-08-12T14%3A57%3A47Z&sp=r&sv=2024-08-04&sr=b&scid=ed7cadb5-68a7-5fd7-9d90-688e1f67df67&skoid=0a4a0f0c-99ac-4752-9d87-cfac036fa93f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-12T08%3A02%3A58Z&ske=2025-08-13T08%3A02%3A58Z&sks=b&skv=2024-08-04&sig=KhfC4DGQDWzSvayX1T4UU3JRBI4zigItCt59rr37Hd4%3D" class="card-img-top" alt="Atik proje">
+            <div class="card-body">
+              <h5 class="card-title">Kayseri Akıllı Atık Projesi ile Çığır Açıyor</h5>
+              <p class="card-text">Yapay zeka destekli "Akıllı Atık Yönetim ve Enerji Dönüşüm Sistemi" ile şehir atık yönetiminde verimliliği artırıyor.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="https://sdmntprnortheu.oaiusercontent.com/files/00000000-5144-61f4-a233-2c2eddfc5af4/raw?se=2025-08-12T15%3A01%3A57Z&sp=r&sv=2024-08-04&sr=b&scid=f4979b4c-a99b-57c8-a02a-61df826b15b5&skoid=0a4a0f0c-99ac-4752-9d87-cfac036fa93f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-12T06%3A06%3A13Z&ske=2025-08-13T06%3A06%3A13Z&sks=b&skv=2024-08-04&sig=oaw7eb/%2Beoi1Xxdu1nqhJ3thW4/GZiOheUO7DOWbWTk%3D" class="card-img-top" alt="Akıllı rotalar">
+            <div class="card-body">
+              <h5 class="card-title">Akıllı Atık, Temiz Sokaklar</h5>
+              <p class="card-text">Sensörlü konteynerler ve optimizasyon, otonom araçlarla entegre edilerek trafik ve yakıt kullanımını azaltıyor.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <div class="card h-100">
+            <img src="https://sdmntpritalynorth.oaiusercontent.com/files/00000000-93c8-6246-b69c-32462d44ced1/raw?se=2025-08-12T15%3A06%3A48Z&sp=r&sv=2024-08-04&sr=b&scid=e740f99a-9038-5260-8af1-7003481f6b3d&skoid=0a4a0f0c-99ac-4752-9d87-cfac036fa93f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-12T05%3A07%3A03Z&ske=2025-08-13T05%3A07%3A03Z&sks=b&skv=2024-08-04&sig=96DORqiMcuge35eCBNzDPmI680JxfdvqXZO78YcoTsI%3D" class="card-img-top" alt="Geri dönüşüm">
+            <div class="card-body">
+              <h5 class="card-title">Akıllı Dönüşüm, Yeşil Enerji</h5>
+              <p class="card-text">Yapay görme ile atık ayrıştırma ve atıklardan enerji üretilmesi şehir ekonomisine ve çevreye katkı sağlıyor.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <!-- Dönüşümlü içerik blokları -->
+    <section class="content-section" aria-labelledby="content-1">
+      <div class="content-image">
+        <img src="https://sdmntprnortheu.oaiusercontent.com/files/00000000-0f68-61f4-a892-70f1f75d4d79/raw?se=2025-08-12T15%3A13%3A34Z&sp=r&sv=2024-08-04&sr=b&scid=23f5f9d3-9925-5c09-9e0b-5ebcdb897f78&skoid=0a4a0f0c-99ac-4752-9d87-cfac036fa93f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-08-12T06%3A06%3A12Z&ske=2025-08-13T06%3A06%3A12Z&sks=b&skv=2024-08-04&sig=BENg1HlSMYfG6lMtICm7DLgsO5gOXsY9yUyLg7zH2bo%3D" alt="Erciyes Dağı">
+      </div>
+      <div class="content-text">
+        <h4 id="content-1">Akıllı Toplama ve Rotalama</h4>
+        <p>Şehir genelindeki sensörlerle donatılmış çöp konteynerleri, doluluk oranlarını anlık olarak bildiriyor; yapay zeka bu verilere göre en verimli rotaları planlıyor. Bu sayede yakıt tüketimi ve trafik yoğunluğu azalıyor.</p>
+      </div>
+    </section>
+
+    <section class="content-section reverse" aria-labelledby="content-2">
+      <div class="content-image">
+        <img src="https://lh3.googleusercontent.com/gg/AAHar4ftCvtJoZbI5nDBXGkyZ2lMRpemp5Z3_OyrP33YbPSVuABpJ13mRmnNBeK4aMIcpHccc4Yq2_UKdI3WEiNcYIgh5xWUiIBJNVd_fGCikw5YRmYASD9fGxg5HWaopBedPWkQJxtwOsqiZ7db-AKhQ1TqYkSQR8WGlXmUMTVuvcffjgaYjQBNiK20MQzI_W_6eyQLgCy2CpZReXfpWn4kO4pKZUw5NKxziAkZlav0Nz5Xs3VpQk8fcYjaqfuheg_Ly6aB9oanpCLDkZ7OeMzFYGwwHfOFBKSpm3ocO2lCaokcU6ioZwPCpbl_37uohkeGJjOI3T4crdsUvWhwAExOSRSU" alt="Kayseri Cumhuriyet Meydanı">
+      </div>
+      <div class="content-text">
+        <h4 id="content-2">Geri Dönüşüm ve Enerji Üretimi</h4>
+        <p>Geri dönüşüm tesislerinde yapay görme teknolojisi atıkları hızlıca ayırıyor; geri dönüştürülemeyen atıklardan ise enerji üretimi gerçekleştiriliyor. Böylece hem çevresel fayda sağlanıyor hem de yerel ekonomiye katkı oluyor.</p>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+
+    <!-- Team: tek çekirdek profil -->
+    <section class="team-section" aria-labelledby="team-title">
+      <h2 id="team-title">Takımımız</h2>
+      <h3>Geleceği Birlikte Şekillendiriyoruz</h3>
+
+      <div class="profile-grid" role="list">
+        <div class="profile-item" role="listitem" aria-label="Takım lideri fotoğrafı">
+          <img src="https://avatars.githubusercontent.com/u/226046179?v=4" alt="Takım Lideri">
+        </div>
+      </div>
+
+      <!-- İsteğe bağlı: profil adı ve kısa açıklama -->
+      <div style="margin-top:18px; color:#ddd;">
+        <strong>Beren Nisa Memnun</strong>
+        <div style="font-size:0.95rem; color:#bbb;">Proje Yöneticisi & Sürdürülebilirlik Uzmanı</div>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+
+  </div> <!-- /.container -->
+
+  <!-- Bootstrap JS (opsiyonel) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

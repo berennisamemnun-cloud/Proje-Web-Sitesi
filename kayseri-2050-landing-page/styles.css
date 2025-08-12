@@ -1,0 +1,26 @@
+.train {
+  position: relative;
+  width: 300px;
+  height: 160px;
+  background: transparent;
+  z-index: 10;
+  animation: sway 4s ease-in-out infinite;
+}
+
+@keyframes sway {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+.circular-image {
+  width: 200px;          /* İstediğin genişlik */
+  height: 200px;         /* İstediğin yükseklik */
+  overflow: hidden;
+  border-radius: 50%;    /* Yuvarlak yapmak için */
+  flex-shrink: 0;        /* Yan yana dizimde küçülmeyi engeller */
+}
+
+.circular-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;     /* Görüntünün kesilmeden yuvarlağa oturması için */
+}
